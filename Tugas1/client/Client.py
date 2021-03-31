@@ -8,9 +8,9 @@ def client_side(filename):
     # send message
     client_send_message(client_socket,filename)
     # get message
-    client_recieve_message(client_socket)
-    # get file
-    client_recieve_file(client_socket,filename)
+    if client_recieve_message(client_socket):
+        # get file
+        client_recieve_file(client_socket,filename)
     # close socket client 
     client_socket.close()
     print('Selesai')
@@ -31,9 +31,11 @@ def client_send_message(client_socket,filename):
 def client_recieve_message(client_socket):
     # receive message from server, 1024 is buffer size in bytes
     message = client_socket.recv(1024)
+    if message.decode('utf-8') == "File not found":
+        return False
     # print message
     print ("From server: " + message.decode("utf-8"))
-
+    return True
 
 def client_recieve_file(client_socket,filename):
     file = open(os.path.basename(filename), 'wb')

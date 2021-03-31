@@ -44,6 +44,11 @@ def server_run(server_socket):
                     filepath = find_file(filename)
                     if filepath is None:
                         print("File not found")
+                        message_to_send = "File not found"
+                        socket.send(message_to_send.encode('utf-8'))
+                        # socket.send(b'')
+                        socket.close()                    
+                        input_list.remove(socket)
                         break
                     print("File found at: ", filepath)              
                     file = open(filepath)
@@ -59,7 +64,7 @@ def server_run(server_socket):
                         socket.send(data)
                     socket.send(b'')
                     print("File is sended to ",client_address)
-                    socket.close()
+                    socket.close()                    
                     input_list.remove(socket)
                 else:                    
                     socket.close()                    
