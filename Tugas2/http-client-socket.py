@@ -25,7 +25,7 @@ def getHTTPVersion(response):
 
 def getContentType(response):
     try:
-        res = re.findall(r'Content-Type: (.*);', response)
+        res = re.findall(r'Content-Type: (.*) ', response)
         return res[0]
     except:
         return None
