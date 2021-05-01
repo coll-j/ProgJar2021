@@ -63,7 +63,7 @@ def server_run(server_socket):
                             break
                         socket.send(data)
                     socket.send(b'')
-                    print("File is sended to ",client_address)
+                    print("File sent to {}\n".format(client_address))
                     socket.close()                    
                     input_list.remove(socket)
                 else:                    

@@ -38,7 +38,7 @@ def client_recieve_message(client_socket):
     return True
 
 def client_recieve_file(client_socket,filename):
-    file = open(os.path.basename(filename), 'wb')
+    file = open(os.path.join('client', filename), 'wb')
     while True:
         data = client_socket.recv(1024)
         if not data:
