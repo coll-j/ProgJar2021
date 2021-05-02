@@ -11,6 +11,11 @@ def getPort(config):
     except:
         return None
 
+def get_ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
+    
 def find_file(filename):
     for root, dirs, files in os.walk('.'):
         for f in files:
@@ -33,7 +38,9 @@ with open(config_path) as config:
         print('Port configuration not found on file: {}'.format(config_path))
         sys.exit(1)
 
-server_address = ('127.0.0.1', port)
+ip_address = get_ip_address()
+print('ip: ', ip_address)
+server_address = (ip_address, port)
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server_socket.bind(server_address)
