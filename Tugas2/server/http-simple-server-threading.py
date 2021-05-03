@@ -212,7 +212,8 @@ while True:
 
     except KeyboardInterrupt:        
         server_socket.close()
-        # sys.exit(0)
+        cleanup()
+        sys.exit(0)
         break
     except Exception as e:
         print((str(e)))
