@@ -70,6 +70,7 @@ def process(data, sock):
                             + str(content_length) + '\r\n\r\n'
 
         sock.sendall(response_header.encode('utf-8') + response_data.encode('utf-8'))
+        sock.close()
     elif request_file == 'dataset' or request_file == '/dataset':
         print('dataset requested')
         fname = os.path.join('server', 'dataset')
@@ -105,6 +106,7 @@ def process(data, sock):
         response_header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length:' \
                             + str(content_length) + '\r\n\r\n'
         sock.sendall(response_header.encode('utf-8') + response_data.encode('utf-8'))
+        sock.close()
     else:
         print('any other')
         # sock.sendall(b'HTTP/1.1 404 Not found\r\n\r\n')
@@ -120,6 +122,7 @@ def process(data, sock):
             response_header = 'HTTP/1.1 404 NOT FOUND\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length:' \
                             + str(content_length) + '\r\n\r\n'
             sock.sendall(response_header.encode('utf-8') + response_data)
+            sock.close()
             print('done sending')
         else:
             fname = filepath
@@ -131,11 +134,11 @@ def process(data, sock):
             response_header = 'HTTP/1.1 200 OK \r\nContent-Disposition: attachment; filename="' + request_file + '"\r\nContent-Type: application/octet-stream\r\n \
                 Content-Length:' \
                             + str(content_length) + '\r\n\r\n'
-        print('tes ', response_header)
-        sock.sendall(response_header.encode('utf-8') + response_data)
-        sock.sendall(b'')
-        sock.shutdown(socket.SHUT_RDWR)
-        sock.close()
+            print('tes ', response_header)
+            sock.sendall(response_header.encode('utf-8') + response_data)
+            sock.sendall(b'')
+            sock.shutdown(socket.SHUT_RDWR)
+            sock.close()
     return
 
 def get_ip_address():
@@ -198,6 +201,8 @@ while True:
         if read_ready[0]:
             data = client.recv(4096)
             t.add(data, client)
+            # input_socket.remove(client_socket)
+
         # print('wokow')
         # for sock in read_ready:
         #     print('halo')
