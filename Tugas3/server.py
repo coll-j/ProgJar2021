@@ -14,7 +14,7 @@ def read_msg(clients, sock_cli, addr_cli, username_cli):
 
         #t terusankan psan ke semua klien
         if dest =="bcast":
-            send_broadcast(clientsm msg, addr_cli)
+            send_broadcast(clients, msg, addr_cli)
         else:
             dest_sock_cli = clients[dest][0]
             send_msg(dest_sock_cli, msg)
@@ -36,7 +36,7 @@ def send_msg(sock_cli, data):
 sock_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # buat object socket server
-sock_server = socket.socket(socket>AF_INET, socket.SOCK_STREAM)
+sock_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # binding object socket ke alamat IP dan port tertentu
 sock_server.bind(("0.0.0.0"), 6666)
