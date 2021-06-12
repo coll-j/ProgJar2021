@@ -39,7 +39,7 @@ def getPageTitle(response):
 
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-page_url = 'classroom.its.ac.id'
+page_url = 'monta.if.its.ac.id'
 server_address = (page_url, 80)
 client_socket.connect(server_address)
 

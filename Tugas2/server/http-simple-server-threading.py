@@ -21,13 +21,10 @@ class serverThread (threading.Thread):
 
     def run(self):
         q = self.q
-        # print('nihao')
         while self.running:
             try:
                 # block for 1 second only:
                 value = q.get(block=True, timeout=1)
-                # print('got data')
-                print(value)
                 process(value[0], value[1])
             except queue.Empty:
                 sys.stdout.write('.')
@@ -41,10 +38,8 @@ class serverThread (threading.Thread):
 
 def process(data, sock):
     data = data.decode('utf-8')
-    # print(data)
     
     request_header = data.split('\r\n')
-    # print(request_header)
     if len(request_header[0]) < 1:
         return
     print(request_header[0])
@@ -108,10 +103,7 @@ def process(data, sock):
         sock.sendall(response_header.encode('utf-8') + response_data.encode('utf-8'))
         sock.close()
     else:
-        print('any other')
-        # sock.sendall(b'HTTP/1.1 404 Not found\r\n\r\n')
         filepath = find_file(request_file)
-        print('fpath; ', filepath )
         if filepath is None:
             fname = os.path.join('server', '404.html')
             f = open(fname, 'rb')
@@ -123,7 +115,6 @@ def process(data, sock):
                             + str(content_length) + '\r\n\r\n'
             sock.sendall(response_header.encode('utf-8') + response_data)
             sock.close()
-            print('done sending')
         else:
             fname = filepath
             f = open(fname, 'rb')
@@ -134,7 +125,6 @@ def process(data, sock):
             response_header = 'HTTP/1.1 200 OK \r\nContent-Disposition: attachment; filename="' + request_file + '"\r\nContent-Type: application/octet-stream\r\n \
                 Content-Length:' \
                             + str(content_length) + '\r\n\r\n'
-            print('tes ', response_header)
             sock.sendall(response_header.encode('utf-8') + response_data)
             sock.sendall(b'')
             sock.shutdown(socket.SHUT_RDWR)
@@ -156,10 +146,7 @@ def getPort(config):
 def find_file(filename):
     for root, dirs, files in os.walk('.'):
         for f in files:
-            # print(f)
-            # print(filename)
             if filename == f:
-                # print('test', root)
                 return os.path.join(root, f)
 
     return None
@@ -194,31 +181,12 @@ input_socket = [server_socket]
 
 while True:
     try:
-        # print('tes')
         client, address = server_socket.accept()
         read_ready, write_ready, exception = select.select([client, ], [], [])
         
         if read_ready[0]:
             data = client.recv(4096)
             t.add(data, client)
-            # input_socket.remove(client_socket)
-
-        # print('wokow')
-        # for sock in read_ready:
-        #     print('halo')
-        #     if sock == server_socket:
-        #         print('hehe')
-        #         client_socket, client_address = server_socket.accept()
-        #         input_socket.append(client_socket)                       
-            
-        #     else:  
-        #         # serverThread(sock)
-        #         print('tus')    
-        #         data = sock.recv(4096)
-        #         t.add(data, sock)
-        #         client_socket.shutdown(socket.SHUT_RDWR)
-        #         client_socket.close()
-        #         input_socket.remove(client_socket)
 
     except KeyboardInterrupt:        
         server_socket.close()
