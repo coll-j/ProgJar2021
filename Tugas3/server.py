@@ -38,6 +38,11 @@ def send_broadcast(clients, data, sender_addr_cli):
 def send_msg(sock_cli, data):
     sock_cli.send(bytes(data, "utf-8"))
 
+def send_client_list(sock_cli):
+    pass
+
+def add_friend(username_cli, username_friend):
+    friends[username_cli].append(username_friend)
 # buat object socket server
 sock_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -52,6 +57,7 @@ sock_server.listen(5)
 
 # buat dictionary utk menyimpan informasi ttg klien
 clients = {}
+friends = {}
 
 while True:
     # accept connection dari klien
@@ -67,5 +73,5 @@ while True:
 
     # simpan informasi ttg klien ke dictionary
     clients[username_cli] = (sock_cli, addr_cli, thread_cli)
-
+    friends[username_cli] = []
 
