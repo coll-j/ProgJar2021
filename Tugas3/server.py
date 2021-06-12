@@ -2,44 +2,57 @@ import socket
 import threading
 
 def read_msg(clients, sock_cli, addr_cli, username_cli):
-    print('reading msg')
     while True:
         # terima pesan
         data = sock_cli.recv(64435)
-        print('data received')
         if len(data) == 0:
             break
         
-        print('data not empty', data)
         # parsing pesannya
-        dest, msg = data.decode("utf - 8").split("|")
-        msg = "<{}>: {}".format(username_cli, msg)
-
-        #t terusankan psan ke semua klien
-        if dest =="bcast":
-            send_broadcast(clients, '[bcast] ' + msg, addr_cli)
-        else:
-            if dest in clients:
-                dest_sock_cli = clients[dest][0]
-                send_msg(dest_sock_cli, msg)
+        act = data.decode("utf - 8").split("|")[0]
+        if act == 'get_user':
+            send_user_list(sock_cli)
+        elif act == 'add':
+            _, user_1, user_2 = data.decode("utf - 8").split("|")
+            if user_2 in clients:
+                add_friend(user_1, user_2)
+                send_msg(sock_cli, '{} added as friend'.format(user_2))
             else:
-                send_broadcast(clients, '[bcast] ' + msg, addr_cli)
-        print(data)
+                send_msg(sock_cli, '{} not found'.format(user_2))
+
+        else:
+            sender, dest, msg = data.decode("utf - 8").split("|")
+            msg = "<{}>: {}".format(username_cli, msg)
+
+            #t terusankan psan ke semua klien
+            if dest =="bcast":
+                send_broadcast(clients, '[bcast] ' + msg, addr_cli, sender)
+            else:
+                if dest in clients:
+                    if dest in friends[sender]:
+                        dest_sock_cli = clients[dest][0]
+                        send_msg(dest_sock_cli, msg)
+                    else:
+                        send_msg(sock_cli, '{} is not a friend yet'.format(dest))
+                else:
+                    send_broadcast(clients, '[bcast] ' + msg, addr_cli, sender)
+            print(data)
     
     sock_cli.close()
     print("Connection closed", addr_cli)
 
 # kirim ke semua klien
-def send_broadcast(clients, data, sender_addr_cli):
-    for sock_cli, addr_cli, _ in clients.values():
+def send_broadcast(clients, data, sender_addr_cli, sender_uname):
+    for uname in friends[sender_uname]:
+        sock_cli, addr_cli, _ = clients[uname]
         if not (sender_addr_cli[0] == addr_cli[0] and sender_addr_cli[1] == addr_cli[1]):
             send_msg(sock_cli, data)
 
 def send_msg(sock_cli, data):
     sock_cli.send(bytes(data, "utf-8"))
 
-def send_client_list(sock_cli):
-    pass
+def send_user_list(sock_cli):
+    send_msg(sock_cli, ', '.join(clients.keys()))
 
 def add_friend(username_cli, username_friend):
     friends[username_cli].append(username_friend)
