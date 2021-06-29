@@ -1,4 +1,5 @@
 import pygame
+import math
 
 class Bolonization():
     def __init__(self, num_box):
@@ -20,18 +21,11 @@ class Bolonization():
         self.boardh = [[0 for x in range(self.num_box)] for y in range(self.num_box + 1)]
         self.boardv = [[0 for x in range(self.num_box + 1)] for y in range(self.num_box)]
 
-        self.boardh[4][5] = 1
-        self.boardv[6][1] = 2
+        # testing
+        # self.boardh[4][5] = 1
+        # self.boardv[6][1] = 2
 
-        self.colorWheel = [(50, 50, 50), (255, 0, 0), (0, 0, 255), (0, 255, 0)]
-
-    def initGraphics(self):
-        self.normallinev = pygame.image.load("normalline.png")
-        self.normallineh = pygame.transform.rotate(pygame.image.load("normalline.png"), -90)
-        self.bar_donev = pygame.image.load("bar_done.png")
-        self.bar_doneh = pygame.transform.rotate(pygame.image.load("bar_done.png"), -90)
-        self.hoverlinev = pygame.image.load("hoverline.png")
-        self.hoverlineh = pygame.transform.rotate(pygame.image.load("hoverline.png"), -90)
+        self.colorWheel = [(50, 50, 50), (255, 0, 0), (0, 0, 255), (0, 255, 0), (255, 255, 0), (255, 0, 255)]
 
     def update(self):
         # sleep to make the game 60 fps
@@ -39,7 +33,13 @@ class Bolonization():
 
         # clear the screen
         self.screen.fill(0)
-        self.drawBoard()
+        mouse = pygame.mouse.get_pos()
+        xpos = int(math.ceil((mouse[0] - 10 - (3 * self.boxWidth) - self.innerSize)/(self.boxWidth + self.innerSize)))
+        ypos = int(math.ceil((mouse[1] - 10 - (2 * self.boxWidth) - self.innerSize)/(self.boxWidth + self.innerSize)))
+        is_horizontal = abs(mouse[1] - (20 + (ypos * self.innerSize) + ((ypos-1) * self.boxWidth))) \
+                        <  \
+                        abs(mouse[0] - (20 + (xpos * self.innerSize) + (xpos * self.boxWidth)))
+        self.drawBoard(xpos, ypos, is_horizontal)
 
         for event in pygame.event.get():
             # quit if the quit button was pressed
@@ -49,14 +49,20 @@ class Bolonization():
         # update the screen
         pygame.display.flip()
 
-    def drawBoard(self):
+    def drawBoard(self, xpos, ypos, is_horizontal):
 
         # Vertical Lines
         for x in range(self.num_box + 1):
             for y in range(self.num_box):
                 y_atas = 10 + ((y+2) * self.boxWidth) + (y * self.innerSize) + 1
                 y_bawah = 10 + ((y+2) * self.boxWidth) + ((y+1) * self.innerSize)
-                pygame.draw.line(self.screen, self.colorWheel[self.boardv[y][x]],
+                if(not is_horizontal) and (xpos == x) and (ypos == y):
+                    pygame.draw.line(self.screen, (150, 150, 150),
+                                     (20 + (x * self.innerSize) + (x * self.boxWidth), y_atas),
+                                     (20 + (x * self.innerSize) + (x * self.boxWidth), y_bawah),
+                                     self.boxWidth)
+                else:
+                    pygame.draw.line(self.screen, self.colorWheel[self.boardv[y][x]],
                                  (20 + (x * self.innerSize) + (x * self.boxWidth), y_atas),
                                  (20 + (x * self.innerSize) + (x * self.boxWidth), y_bawah),
                                  self.boxWidth)
@@ -67,7 +73,13 @@ class Bolonization():
             for y in range(self.num_box):
                 x_kiri = 10 + ((y+3) * self.boxWidth) + (y * self.innerSize) + 1
                 x_kanan = 10 + ((y+3) * self.boxWidth) + ((y+1) * self.innerSize)
-                pygame.draw.line(self.screen, self.colorWheel[self.boardh[x][y]],
+                if (is_horizontal) and (xpos == y) and (ypos == x):
+                    pygame.draw.line(self.screen, (150, 150, 150),
+                                 (x_kiri, 20 + (x * self.innerSize) + ((x-1) * self.boxWidth)),
+                                 (x_kanan, 20 + (x * self.innerSize) + ((x-1) * self.boxWidth)),
+                                 self.boxWidth)
+                else:
+                    pygame.draw.line(self.screen, self.colorWheel[self.boardh[x][y]],
                                  (x_kiri, 20 + (x * self.innerSize) + ((x-1) * self.boxWidth)),
                                  (x_kanan, 20 + (x * self.innerSize) + ((x-1) * self.boxWidth)),
                                  self.boxWidth)
