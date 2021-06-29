@@ -8,7 +8,7 @@ def print_hi(name):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    game = Bolonization(6)
+    game = Bolonization(7)
     print_hi('PyCharm')
     while True:
         game.update()
