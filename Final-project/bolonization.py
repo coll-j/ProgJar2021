@@ -2,8 +2,9 @@ import pygame
 import math
 
 class Bolonization():
-    def __init__(self, num_box):
+    def __init__(self, num_box, player_num):
         pygame.init()
+        self.player_num = player_num
         self.num_box = num_box
         self.boxSize = 60
         self.boxWidth = 4
@@ -33,13 +34,7 @@ class Bolonization():
 
         # clear the screen
         self.screen.fill(0)
-        mouse = pygame.mouse.get_pos()
-        xpos = int(math.ceil((mouse[0] - 10 - (3 * self.boxWidth) - self.innerSize)/(self.boxWidth + self.innerSize)))
-        ypos = int(math.ceil((mouse[1] - 10 - (2 * self.boxWidth) - self.innerSize)/(self.boxWidth + self.innerSize)))
-        is_horizontal = abs(mouse[1] - (20 + (ypos * self.innerSize) + ((ypos-1) * self.boxWidth))) \
-                        <  \
-                        abs(mouse[0] - (20 + (xpos * self.innerSize) + (xpos * self.boxWidth)))
-        self.drawBoard(xpos, ypos, is_horizontal)
+        self.drawBoard()
 
         for event in pygame.event.get():
             # quit if the quit button was pressed
@@ -49,14 +44,21 @@ class Bolonization():
         # update the screen
         pygame.display.flip()
 
-    def drawBoard(self, xpos, ypos, is_horizontal):
+    def drawBoard(self):
+        # Get mouse position
+        mouse = pygame.mouse.get_pos()
+        xpos = int(math.ceil((mouse[0] - 10 - (3 * self.boxWidth) - self.innerSize)/(self.boxWidth + self.innerSize)))
+        ypos = int(math.ceil((mouse[1] - 10 - (2 * self.boxWidth) - self.innerSize)/(self.boxWidth + self.innerSize)))
+        is_horizontal = abs(mouse[1] - (20 + (ypos * self.innerSize) + ((ypos-1) * self.boxWidth))) \
+                        <  \
+                        abs(mouse[0] - (20 + (xpos * self.innerSize) + (xpos * self.boxWidth)))
 
         # Vertical Lines
         for x in range(self.num_box + 1):
             for y in range(self.num_box):
                 y_atas = 10 + ((y+2) * self.boxWidth) + (y * self.innerSize) + 1
                 y_bawah = 10 + ((y+2) * self.boxWidth) + ((y+1) * self.innerSize)
-                if(not is_horizontal) and (xpos == x) and (ypos == y):
+                if(not is_horizontal) and (xpos == x) and (ypos == y) and self.boardv[ypos][xpos] == 0:
                     pygame.draw.line(self.screen, (150, 150, 150),
                                      (20 + (x * self.innerSize) + (x * self.boxWidth), y_atas),
                                      (20 + (x * self.innerSize) + (x * self.boxWidth), y_bawah),
@@ -73,7 +75,7 @@ class Bolonization():
             for y in range(self.num_box):
                 x_kiri = 10 + ((y+3) * self.boxWidth) + (y * self.innerSize) + 1
                 x_kanan = 10 + ((y+3) * self.boxWidth) + ((y+1) * self.innerSize)
-                if (is_horizontal) and (xpos == y) and (ypos == x):
+                if (is_horizontal) and (xpos == y) and (ypos == x) and (self.boardh[ypos][xpos] == 0):
                     pygame.draw.line(self.screen, (150, 150, 150),
                                  (x_kiri, 20 + (x * self.innerSize) + ((x-1) * self.boxWidth)),
                                  (x_kanan, 20 + (x * self.innerSize) + ((x-1) * self.boxWidth)),
@@ -83,3 +85,10 @@ class Bolonization():
                                  (x_kiri, 20 + (x * self.innerSize) + ((x-1) * self.boxWidth)),
                                  (x_kanan, 20 + (x * self.innerSize) + ((x-1) * self.boxWidth)),
                                  self.boxWidth)
+
+        # Mouse click listener
+        if pygame.mouse.get_pressed()[0]:
+            if is_horizontal and self.boardh[ypos][xpos] == 0:
+                self.boardh[ypos][xpos] = self.player_num
+            elif not is_horizontal and self.boardv[ypos][xpos] == 0:
+                self.boardv[ypos][xpos] = self.player_num
