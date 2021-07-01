@@ -29,7 +29,7 @@ if __name__ == '__main__':
     data = "{}|{}".format(username, 7)
     sock_cli.send(bytes(data, "utf-8"))
 
-    game = GameClient(7, 2)
+    game = GameClient(7, 2, sock_cli)
     print_hi('PyCharm')
     while True:
         game.update()

@@ -1,5 +1,6 @@
 import socket
 import threading
+import pickle
 import os
 from bolonization import GameServer
 
@@ -11,6 +12,8 @@ def read_msg(clients, sock_cli, addr_cli, username_cli):
             break
 
         # parsing pesannya
+        parsed_data = pickle.loads(data)
+        print("parsed: ", parsed_data)
     sock_cli.close()
     print("Connection closed", addr_cli)
 
@@ -48,6 +51,7 @@ if __name__ == '__main__':
         if len(rooms) == 0:
             print("room created")
             rooms[username_cli] = GameServer(int(num_box))
+            rooms[username_cli].addPlayer(username_cli)
         else:
             avail_room = list(rooms.keys())[0]
             print("{} joining room {}".format(username_cli, avail_room))

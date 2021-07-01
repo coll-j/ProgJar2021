@@ -1,3 +1,5 @@
+import pickle
+
 import pygame
 import math
 
@@ -14,8 +16,9 @@ class GameServer():
         self.players.append(username)
 
 class GameClient():
-    def __init__(self, num_box, player_num):
+    def __init__(self, num_box, player_num, socket):
         pygame.init()
+        self.socket = socket
         self.player_num = player_num
         self.num_box = num_box
         self.boxSize = 60
@@ -56,36 +59,52 @@ class GameClient():
         # update the screen
         pygame.display.flip()
 
+    def sendMoveInfo(self, data):
+        self.socket.send(data)
+        pass
+
     def move(self, is_horizontal, xpos, ypos):
+        moved = False
         if is_horizontal and self.boardh[ypos][xpos] == 0:
+            moved = True
             self.boardh[ypos][xpos] = self.player_num
 
             # Check upper part
-            if self.boardh[ypos-1][xpos] == self.player_num and \
+            if (ypos > 0) and (xpos < self.num_box) and \
+                    self.boardh[ypos-1][xpos] == self.player_num and \
                     self.boardv[ypos-1][xpos] == self.player_num and \
                     self.boardv[ypos-1][xpos+1] == self.player_num:
                 print("colonized")
 
             #Check lower part
-            if self.boardh[ypos+1][xpos] == self.player_num and \
+            if (xpos < self.num_box) and (ypos < self.num_box) and \
+                    self.boardh[ypos+1][xpos] == self.player_num and \
                     self.boardv[ypos][xpos] == self.player_num and \
                     self.boardv[ypos][xpos+1] == self.player_num:
                 print("colonized")
         elif not is_horizontal and self.boardv[ypos][xpos] == 0:
+            moved = True
             self.boardv[ypos][xpos] = self.player_num
+
+
             # Check left part
-            if self.boardv[ypos][xpos-1] == self.player_num and \
+            if (xpos > 0) and (ypos < self.num_box) and \
+                    self.boardv[ypos][xpos-1] == self.player_num and \
                     self.boardh[ypos][xpos-1] == self.player_num and \
                     self.boardh[ypos + 1][xpos - 1] == self.player_num:
                 print("colonized")
 
             # Check right part
-            if self.boardv[ypos][xpos+1] == self.player_num and \
+            if (xpos < self.num_box) and (ypos < self.num_box) and \
+                    self.boardv[ypos][xpos+1] == self.player_num and \
                     self.boardh[ypos][xpos] == self.player_num and \
                     self.boardh[ypos+1][xpos] == self.player_num:
                 print("colonized")
-        # TO DO: Send to server
 
+        # TO DO: Send to server
+        if moved:
+            moveDict = {'is_horizontal': is_horizontal, 'xpos': xpos, 'ypos': ypos}
+            self.sendMoveInfo(pickle.dumps(moveDict))
     def drawBoard(self):
         # Get mouse position
         mouse = pygame.mouse.get_pos()
