@@ -44,6 +44,36 @@ class Bolonization():
         # update the screen
         pygame.display.flip()
 
+    def move(self, is_horizontal, xpos, ypos):
+        if is_horizontal and self.boardh[ypos][xpos] == 0:
+            self.boardh[ypos][xpos] = self.player_num
+
+            # Check upper part
+            if self.boardh[ypos-1][xpos] == self.player_num and \
+                    self.boardv[ypos-1][xpos] == self.player_num and \
+                    self.boardv[ypos-1][xpos+1] == self.player_num:
+                print("colonized")
+
+            #Check lower part
+            if self.boardh[ypos+1][xpos] == self.player_num and \
+                    self.boardv[ypos][xpos] == self.player_num and \
+                    self.boardv[ypos][xpos+1] == self.player_num:
+                print("colonized")
+        elif not is_horizontal and self.boardv[ypos][xpos] == 0:
+            self.boardv[ypos][xpos] = self.player_num
+            # Check left part
+            if self.boardv[ypos][xpos-1] == self.player_num and \
+                    self.boardh[ypos][xpos-1] == self.player_num and \
+                    self.boardh[ypos + 1][xpos - 1] == self.player_num:
+                print("colonized")
+
+            # Check right part
+            if self.boardv[ypos][xpos+1] == self.player_num and \
+                    self.boardh[ypos][xpos] == self.player_num and \
+                    self.boardh[ypos+1][xpos] == self.player_num:
+                print("colonized")
+        # TO DO: Send to server
+
     def drawBoard(self):
         # Get mouse position
         mouse = pygame.mouse.get_pos()
@@ -88,7 +118,4 @@ class Bolonization():
 
         # Mouse click listener
         if pygame.mouse.get_pressed()[0]:
-            if is_horizontal and self.boardh[ypos][xpos] == 0:
-                self.boardh[ypos][xpos] = self.player_num
-            elif not is_horizontal and self.boardv[ypos][xpos] == 0:
-                self.boardv[ypos][xpos] = self.player_num
+            self.move(is_horizontal, xpos, ypos)
