@@ -1,7 +1,19 @@
 import pygame
 import math
 
-class Bolonization():
+class GameServer():
+    def __init__(self, num_box):
+        self.players = []
+        self.num_box = num_box
+
+        self.boardh = [[0 for x in range(self.num_box)] for y in range(self.num_box + 1)]
+        self.boardv = [[0 for x in range(self.num_box + 1)] for y in range(self.num_box)]
+        pass
+
+    def addPlayer(self, username):
+        self.players.append(username)
+
+class GameClient():
     def __init__(self, num_box, player_num):
         pygame.init()
         self.player_num = player_num
