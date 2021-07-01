@@ -4,7 +4,7 @@ import pickle
 import os
 from bolonization import GameServer
 
-def read_msg(clients, sock_cli, addr_cli, username_cli):
+def read_msg(sock_cli, addr_cli, username_cli):
     while True:
         # terima pesan
         data = sock_cli.recv(65535)
@@ -13,9 +13,18 @@ def read_msg(clients, sock_cli, addr_cli, username_cli):
 
         # parsing pesannya
         parsed_data = pickle.loads(data)
+        room = rooms[players[username_cli]['room_key']]
+        if room.updateBoard(parsed_data):
+            new_board = pickle.dumps(room.getBoard())
+            for player in room.getPlayer():
+                players[player]['socket'].send(new_board)
         print("parsed: ", parsed_data)
     sock_cli.close()
     print("Connection closed", addr_cli)
+
+# buat dictionary utk menyimpan informasi ttg klien
+players = {} # {'username': (sock_cli, addr_cli, thread_cli)}
+rooms = {} # {room_number: room_object}
 
 if __name__ == '__main__':
 # buat object socket server
@@ -30,10 +39,6 @@ if __name__ == '__main__':
     # listen for an incoming connection
     sock_server.listen(5)
 
-    # buat dictionary utk menyimpan informasi ttg klien
-    players = {} # {'username': (sock_cli, addr_cli, thread_cli)}
-    rooms = {} # {room_number: room_object}
-
     while True:
         # accept connection dari klien
         sock_cli, addr_cli = sock_server.accept()
@@ -43,16 +48,21 @@ if __name__ == '__main__':
         print(username_cli, " joined")
 
         # buat thread baru untuk membaca pesan dan jalankan threadnya
-        thread_cli = threading.Thread(target=read_msg, args=(players, sock_cli, addr_cli, username_cli))
+        thread_cli = threading.Thread(target=read_msg, args=(sock_cli, addr_cli, username_cli))
         thread_cli.start()
 
         # testing
-        players[username_cli] = (sock_cli, addr_cli, thread_cli)
+        players[username_cli] = {'socket': sock_cli, 'address': addr_cli, 'thread': thread_cli}
+
         if len(rooms) == 0:
+            # Create room
             print("room created")
             rooms[username_cli] = GameServer(int(num_box))
             rooms[username_cli].addPlayer(username_cli)
+            players[username_cli]['room_key'] = username_cli
         else:
+            # Join room
             avail_room = list(rooms.keys())[0]
             print("{} joining room {}".format(username_cli, avail_room))
             r = rooms[avail_room].addPlayer(username_cli)
+            players[username_cli]['room_key'] = avail_room
