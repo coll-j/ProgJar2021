@@ -87,6 +87,7 @@ class GameClient():
         self._turn = 1
         self.moved = False
         self.player_num = player_num
+        self._total_player = player_num
         self.num_box = num_box
         self.boxSize = 60
         self.boxWidth = 4
@@ -94,7 +95,7 @@ class GameClient():
         self.gap = self.boxWidth * 2
         self.moveDict = {}
 
-        width = 42 + (self.num_box * self.innerSize) + (self.num_box * self.boxWidth)
+        width = 42 + (self.num_box * self.innerSize) + (self.num_box * self.boxWidth) + 80
         height = width + 50
 
         self.screen = pygame.display.set_mode((width, height))
@@ -116,6 +117,14 @@ class GameClient():
     def turn(self, turn):
         self._turn = turn % (len(self.getPlayer()) + 1)
         self._turn = 1 if self._turn == 0 else self._turn
+
+    @property
+    def total_player(self):
+        return self._total_player
+
+    @total_player.setter
+    def total_player(self, num):
+        self._total_player = num
 
     def hasMoved(self):
         return self.moved
@@ -153,7 +162,6 @@ class GameClient():
         return pickle.dumps(self.moveDict)
 
     def updateBoard(self, data):
-        data = pickle.loads(data)
         self._turn = data['turn']
         self.boardh = data['boardh']
         self.boardv = data['boardv']
@@ -199,6 +207,11 @@ class GameClient():
                                  (x_kiri, 20 + (x * self.innerSize) + ((x-1) * self.boxWidth)),
                                  (x_kanan, 20 + (x * self.innerSize) + ((x-1) * self.boxWidth)),
                                  self.boxWidth)
+
+        for i in range(1, self._total_player+1):
+            x = 20 + ((self.num_box+2) * self.boxWidth) + ((self.num_box) * self.innerSize)
+            y = 25 * i
+            pygame.draw.rect(self.screen, self.colorWheel[i], (x, y, 30, 10))
 
         # Mouse click listener
         if pygame.mouse.get_pressed()[0]:

@@ -77,11 +77,15 @@ if __name__ == '__main__':
                 avail_room = list(rooms.keys())[0]
                 print("{} joining room {}".format(username_cli, avail_room))
 
-            r = rooms[avail_room].addPlayer(username_cli)
+            rooms[avail_room].addPlayer(username_cli)
             players[username_cli]['room_key'] = avail_room
             num_player = len(rooms[avail_room].getPlayer())
             print('num players: ', num_player)
             sock_cli.send(bytes("{}|{}".format(num_box, num_player), "utf-8"))
+            data = {'num_player': num_player}
+            for player in rooms[avail_room].getPlayer():
+                players[player]['socket'].send(pickle.dumps(data))
+            #     print("sent data to {}".format(player))
     except:
         for p in players:
             players[p]['socket'].close()

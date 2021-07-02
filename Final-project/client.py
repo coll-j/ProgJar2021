@@ -16,8 +16,14 @@ def read_msg(sock_cli):
             if len(data) == 0:
                 break
 
-            if game is not None:
-                game.updateBoard(data)
+            parsed_data = pickle.loads(data)
+            # print('parsed: ', parsed_data['num_player'])
+            if 'num_player' in parsed_data:
+                if game is not None:
+                    game.total_player = parsed_data['num_player']
+            else:
+                if game is not None:
+                    game.updateBoard(parsed_data)
     except:
         pass
 
@@ -47,12 +53,10 @@ if __name__ == '__main__':
         thread_cli = threading.Thread(target=read_msg, args=(sock_cli,))
         thread_cli.start()
 
-        print(type(num_box), player_num)
         game = GameClient(int(num_box), int(player_num))
         while True:
             game.update()
             if not game.isRunning():
-                print("is not running")
                 # sock_cli.send(bytes("stopped", "utf-8"))
                 exit()
                 break
