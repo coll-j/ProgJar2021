@@ -9,14 +9,17 @@ import os
 from bolonization import GameClient
 
 def read_msg(sock_cli):
-    while True:
-        # terima pesan
-        data = sock_cli.recv(65535)
-        if len(data) == 0:
-            break
+    try:
+        while True:
+            # terima pesan
+            data = sock_cli.recv(65535)
+            if len(data) == 0:
+                break
 
-        if game is not None:
-            game.updateBoard(data)
+            if game is not None:
+                game.updateBoard(data)
+    except:
+        pass
 
 game = None
 if __name__ == '__main__':
@@ -49,6 +52,9 @@ if __name__ == '__main__':
         while True:
             game.update()
             if not game.isRunning():
+                print("is not running")
+                # sock_cli.send(bytes("stopped", "utf-8"))
+                exit()
                 break
 
             if game.hasMoved():

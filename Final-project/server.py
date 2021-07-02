@@ -7,22 +7,29 @@ import sys
 from bolonization import GameServer
 
 def read_msg(sock_cli, addr_cli, username_cli):
-    while True:
-        # terima pesan
-        data = sock_cli.recv(65535)
-        if len(data) == 0:
-            break
+    try:
+        while True:
+            # terima pesan
+            data = sock_cli.recv(65535)
+            if len(data) == 0:
+                break
 
-        # parsing pesannya
-        parsed_data = pickle.loads(data)
-        room = rooms[players[username_cli]['room_key']]
-        if room.updateBoard(parsed_data):
-            new_board = pickle.dumps(room.getBoard())
-            for player in room.getPlayer():
-                players[player]['socket'].send(new_board)
-        print("parsed: ", parsed_data)
-    sock_cli.close()
-    print("Connection closed", addr_cli)
+            # parsing pesannya
+            parsed_data = pickle.loads(data)
+            room = rooms[players[username_cli]['room_key']]
+            if room.updateBoard(parsed_data):
+                new_board = pickle.dumps(room.getBoard())
+                for player in room.getPlayer():
+                    players[player]['socket'].send(new_board)
+            print("parsed: ", parsed_data)
+        sock_cli.close()
+        print("Connection closed", addr_cli)
+    except:
+        room = players[username_cli]['room_key']
+        rooms[room].removePlayer(username_cli)
+        if len(rooms[room].getPlayer()) < 1:
+            del rooms[room]
+
 
 # buat dictionary utk menyimpan informasi ttg klien
 players = {} # {'username': (sock_cli, addr_cli, thread_cli)}

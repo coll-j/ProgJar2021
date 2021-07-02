@@ -13,6 +13,9 @@ class GameServer():
         self.boardv = [[0 for x in range(self.num_box + 1)] for y in range(self.num_box)]
         pass
 
+    def removePlayer(self, username):
+        self.players.remove(username)
+
     def addPlayer(self, username):
         self.players.append(username)
 
@@ -112,7 +115,7 @@ class GameClient():
             # quit if the quit button was pressed
             if event.type == pygame.QUIT:
                 self.is_running = False
-                exit()
+                # exit()
                 # sys.exit(0)
 
         # update the screen
