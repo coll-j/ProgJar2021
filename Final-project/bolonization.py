@@ -57,14 +57,17 @@ class GameServer():
                     self.boardh[ypos-1][xpos] == player_num and \
                     self.boardv[ypos-1][xpos] == player_num and \
                     self.boardv[ypos-1][xpos+1] == player_num:
-                print("colonized")
+                self.player_scores[player_num-1] += 1
+                print("colonized ", self.player_scores)
 
             #Check lower part
             if (xpos < self.num_box) and (ypos < self.num_box) and \
                     self.boardh[ypos+1][xpos] == player_num and \
                     self.boardv[ypos][xpos] == player_num and \
                     self.boardv[ypos][xpos+1] == player_num:
-                print("colonized")
+                self.player_scores[player_num-1] += 1
+                print("colonized ", self.player_scores)
+
         elif not is_horizontal and self.boardv[ypos][xpos] == 0:
             moved = True
             self.boardv[ypos][xpos] = player_num
@@ -75,6 +78,7 @@ class GameServer():
                     self.boardv[ypos][xpos-1] == player_num and \
                     self.boardh[ypos][xpos-1] == player_num and \
                     self.boardh[ypos + 1][xpos - 1] == player_num:
+                self.player_scores[player_num - 1] += 1
                 print("colonized")
 
             # Check right part
@@ -82,6 +86,7 @@ class GameServer():
                     self.boardv[ypos][xpos+1] == player_num and \
                     self.boardh[ypos][xpos] == player_num and \
                     self.boardh[ypos+1][xpos] == player_num:
+                self.player_scores[player_num - 1] += 1
                 print("colonized")
 
         return moved
@@ -180,9 +185,9 @@ class GameClient():
         return pickle.dumps(self.moveDict)
 
     def updateBoard(self, data):
-        self._turn = data['turn']
-        self.boardh = data['boardh']
-        self.boardv = data['boardv']
+        self._turn = data.get('turn', self._turn)
+        self.boardh = data.get('boardh', self.boardh)
+        self.boardv = data.get('boardv', self.boardv)
 
     def drawBoard(self):
         # Get mouse position

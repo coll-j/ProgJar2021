@@ -14,7 +14,6 @@ def read_msg(sock_cli, addr_cli, username_cli):
             if len(data) == 0:
                 break
 
-            print(data)
             # parsing pesannya
             parsed_data = pickle.loads(data)
             if "ready" in parsed_data:
@@ -27,12 +26,12 @@ def read_msg(sock_cli, addr_cli, username_cli):
 
                 continue
 
-            print("update board")
             room = rooms[players[username_cli]['room_key']]
             if room.updateBoard(parsed_data):
                 data = room.getBoard()
                 room.turn = room.turn + 1
                 data['turn'] = room.turn
+                data['scores'] = room.getScores()
                 for player in room.getPlayer():
                     players[player]['socket'].send(pickle.dumps(data))
         sock_cli.close()

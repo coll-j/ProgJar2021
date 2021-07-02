@@ -17,14 +17,12 @@ def read_msg(sock_cli):
                 break
 
             parsed_data = pickle.loads(data)
-
             if 'scores' in parsed_data:
                 if game is not None:
-                    pass
                     game.scores = parsed_data['scores']
-            else:
-                if game is not None:
-                    game.updateBoard(parsed_data)
+
+            if game is not None:
+                game.updateBoard(parsed_data)
     except:
         pass
 
