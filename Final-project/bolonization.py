@@ -67,16 +67,18 @@ class GameServer():
         return moved
 
 class GameClient():
-    def __init__(self, num_box, player_num, socket):
+    def __init__(self, num_box, player_num):
         pygame.init()
+        print("creating game...")
         self.is_running = True
-        self.socket = socket
+        self.moved = False
         self.player_num = player_num
         self.num_box = num_box
         self.boxSize = 60
         self.boxWidth = 4
         self.innerSize = self.boxSize - (2 * self.boxWidth)
         self.gap = self.boxWidth * 2
+        self.moveDict = {}
 
         width = 42 + (self.num_box * self.innerSize) + (self.num_box * self.boxWidth)
         height = width + 50
@@ -90,6 +92,13 @@ class GameClient():
         self.boardv = [[0 for x in range(self.num_box + 1)] for y in range(self.num_box)]
 
         self.colorWheel = [(50, 50, 50), (255, 0, 0), (0, 0, 255), (0, 255, 0), (255, 255, 0), (255, 0, 255)]
+        print("game created")
+
+    def hasMoved(self):
+        return self.moved
+
+    def setMoved(self, moved):
+        self.moved = moved
 
     def update(self):
         # sleep to make the game 60 fps
@@ -102,7 +111,7 @@ class GameClient():
         for event in pygame.event.get():
             # quit if the quit button was pressed
             if event.type == pygame.QUIT:
-                is_running = False
+                self.is_running = False
                 exit()
                 # sys.exit(0)
 
@@ -112,13 +121,13 @@ class GameClient():
     def isRunning(self):
         return self.is_running
 
-    def sendMoveInfo(self, data):
-        self.socket.send(data)
-        pass
-
     def move(self, is_horizontal, xpos, ypos):
         moveDict = {'is_horizontal': is_horizontal, 'xpos': xpos, 'ypos': ypos, 'player_num': self.player_num}
-        self.sendMoveInfo(pickle.dumps(moveDict))
+        self.moveDict = moveDict
+        self.moved = True
+
+    def getMove(self):
+        return pickle.dumps(self.moveDict)
 
     def updateBoard(self, data):
         boards = pickle.loads(data)

@@ -15,7 +15,8 @@ def read_msg(sock_cli):
         if len(data) == 0:
             break
 
-        game.updateBoard(data)
+        if game is not None:
+            game.updateBoard(data)
 
 game = None
 if __name__ == '__main__':
@@ -35,18 +36,32 @@ if __name__ == '__main__':
         data = "{}|{}".format(username, 7)
         sock_cli.send(bytes(data, "utf-8"))
 
+
+        response = sock_cli.recv(655535).decode("utf-8")
+        num_box, player_num = response.split("|")
+
         # buat thread utk membaca pesan dan jalankan threadnya
         thread_cli = threading.Thread(target=read_msg, args=(sock_cli,))
         thread_cli.start()
 
-        game = GameClient(7, 1, sock_cli)
+        print(type(num_box), player_num)
+        game = GameClient(7, 1)
         while True:
             game.update()
             if not game.isRunning():
                 break
 
+            if game.hasMoved():
+                data = game.getMove()
+                sock_cli.send(data)
+                game.setMoved(False)
+
     except:
         sock_cli.close()
-        thread_cli.join()
-        sys.exit(0)
+        # try:
+        #     thread_cli.join()
+        # finally:
+        sys.exit(-1)
+
+    sys.exit(0)
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

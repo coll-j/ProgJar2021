@@ -62,15 +62,18 @@ if __name__ == '__main__':
             if len(rooms) == 0:
                 # Create room
                 print("room created")
+                avail_room = username_cli
                 rooms[username_cli] = GameServer(int(num_box))
-                rooms[username_cli].addPlayer(username_cli)
-                players[username_cli]['room_key'] = username_cli
             else:
                 # Join room
                 avail_room = list(rooms.keys())[0]
                 print("{} joining room {}".format(username_cli, avail_room))
-                r = rooms[avail_room].addPlayer(username_cli)
-                players[username_cli]['room_key'] = avail_room
+
+            r = rooms[avail_room].addPlayer(username_cli)
+            players[username_cli]['room_key'] = avail_room
+            num_player = len(rooms[avail_room].getPlayer())
+            print('num players: ', num_player)
+            sock_cli.send(bytes("7|1", "utf-8"))
     except:
         sock_server.close()
         for p in players:
