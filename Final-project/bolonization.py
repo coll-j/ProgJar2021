@@ -84,6 +84,7 @@ class GameClient():
         pygame.init()
         print("creating game...")
         self.is_running = True
+        self._turn = 1
         self.moved = False
         self.player_num = player_num
         self.num_box = num_box
@@ -106,6 +107,15 @@ class GameClient():
 
         self.colorWheel = [(50, 50, 50), (255, 0, 0), (0, 0, 255), (0, 255, 0), (255, 255, 0), (255, 0, 255)]
         print("game created")
+
+    @property
+    def turn(self):
+        return self._turn
+
+    @turn.setter
+    def turn(self, turn):
+        self._turn = turn % (len(self.getPlayer()) + 1)
+        self._turn = 1 if self._turn == 0 else self._turn
 
     def hasMoved(self):
         return self.moved
@@ -143,9 +153,10 @@ class GameClient():
         return pickle.dumps(self.moveDict)
 
     def updateBoard(self, data):
-        boards = pickle.loads(data)
-        self.boardh = boards['boardh']
-        self.boardv = boards['boardv']
+        data = pickle.loads(data)
+        self._turn = data['turn']
+        self.boardh = data['boardh']
+        self.boardv = data['boardv']
 
     def drawBoard(self):
         # Get mouse position
@@ -191,4 +202,5 @@ class GameClient():
 
         # Mouse click listener
         if pygame.mouse.get_pressed()[0]:
-            self.move(is_horizontal, xpos, ypos)
+            if self.player_num == self._turn:
+                self.move(is_horizontal, xpos, ypos)
