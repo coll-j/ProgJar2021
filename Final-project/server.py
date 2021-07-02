@@ -14,8 +14,20 @@ def read_msg(sock_cli, addr_cli, username_cli):
             if len(data) == 0:
                 break
 
+            print(data)
             # parsing pesannya
             parsed_data = pickle.loads(data)
+            if "ready" in parsed_data:
+                room = players[username_cli]['room_key']
+                scores = rooms[room].getScores()
+                data = {'scores': scores}
+
+                for player in rooms[avail_room].getPlayer():
+                    players[player]['socket'].send(pickle.dumps(data))
+
+                continue
+
+            print("update board")
             room = rooms[players[username_cli]['room_key']]
             if room.updateBoard(parsed_data):
                 data = room.getBoard()
@@ -28,6 +40,11 @@ def read_msg(sock_cli, addr_cli, username_cli):
     except:
         room = players[username_cli]['room_key']
         rooms[room].removePlayer(username_cli)
+        scores = rooms[room].getScores()
+        data = {'scores': scores}
+        for player in rooms[room].getPlayer():
+            players[player]['socket'].send(pickle.dumps(data))
+
         if len(rooms[room].getPlayer()) < 1:
             del rooms[room]
 
@@ -79,12 +96,10 @@ if __name__ == '__main__':
 
             rooms[avail_room].addPlayer(username_cli)
             players[username_cli]['room_key'] = avail_room
-            num_player = len(rooms[avail_room].getPlayer())
-            print('num players: ', num_player)
-            sock_cli.send(bytes("{}|{}".format(num_box, num_player), "utf-8"))
-            data = {'num_player': num_player}
-            for player in rooms[avail_room].getPlayer():
-                players[player]['socket'].send(pickle.dumps(data))
+            scores = rooms[avail_room].getScores()
+
+            sock_cli.send(bytes("{}|{}".format(num_box, len(scores)), "utf-8"))
+
             #     print("sent data to {}".format(player))
     except:
         for p in players:

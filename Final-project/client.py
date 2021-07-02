@@ -17,10 +17,11 @@ def read_msg(sock_cli):
                 break
 
             parsed_data = pickle.loads(data)
-            # print('parsed: ', parsed_data['num_player'])
-            if 'num_player' in parsed_data:
+
+            if 'scores' in parsed_data:
                 if game is not None:
-                    game.total_player = parsed_data['num_player']
+                    pass
+                    game.scores = parsed_data['scores']
             else:
                 if game is not None:
                     game.updateBoard(parsed_data)
@@ -54,6 +55,8 @@ if __name__ == '__main__':
         thread_cli.start()
 
         game = GameClient(int(num_box), int(player_num))
+        data = {"ready": True}
+        sock_cli.send(pickle.dumps(data))
         while True:
             game.update()
             if not game.isRunning():

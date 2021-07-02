@@ -7,6 +7,7 @@ import math
 class GameServer():
     def __init__(self, num_box):
         self.players = []
+        self.player_scores = []
         self.num_box = num_box
         self._turn = 1
 
@@ -24,13 +25,19 @@ class GameServer():
         self._turn = 1 if self._turn == 0 else self._turn
 
     def removePlayer(self, username):
+        idx = self.players.index(username)
         self.players.remove(username)
+        del self.player_scores[idx]
 
     def addPlayer(self, username):
+        self.player_scores.append(0)
         self.players.append(username)
 
     def getPlayer(self):
         return self.players
+
+    def getScores(self):
+        return self.player_scores
 
     def getBoard(self):
         return {'boardh': self.boardh, 'boardv': self.boardv}
@@ -88,6 +95,7 @@ class GameClient():
         self.moved = False
         self.player_num = player_num
         self._total_player = player_num
+        self._scores = []
         self.num_box = num_box
         self.boxSize = 60
         self.boxWidth = 4
@@ -107,6 +115,8 @@ class GameClient():
         self.boardv = [[0 for x in range(self.num_box + 1)] for y in range(self.num_box)]
 
         self.colorWheel = [(50, 50, 50), (255, 0, 0), (0, 0, 255), (0, 255, 0), (255, 255, 0), (255, 0, 255)]
+        self.font = pygame.font.SysFont(None, 16)
+
         print("game created")
 
     @property
@@ -117,6 +127,14 @@ class GameClient():
     def turn(self, turn):
         self._turn = turn % (len(self.getPlayer()) + 1)
         self._turn = 1 if self._turn == 0 else self._turn
+
+    @property
+    def scores(self):
+        return self._scores
+
+    @scores.setter
+    def scores(self, scores):
+        self._scores = scores
 
     @property
     def total_player(self):
@@ -208,10 +226,12 @@ class GameClient():
                                  (x_kanan, 20 + (x * self.innerSize) + ((x-1) * self.boxWidth)),
                                  self.boxWidth)
 
-        for i in range(1, self._total_player+1):
+        for i in range(1, len(self._scores)+1):
             x = 20 + ((self.num_box+2) * self.boxWidth) + ((self.num_box) * self.innerSize)
             y = 25 * i
             pygame.draw.rect(self.screen, self.colorWheel[i], (x, y, 30, 10))
+            score_text = self.font.render("{}".format(self._scores[i-1]), 1, (255, 255, 255))
+            self.screen.blit(score_text, (x+50, y))
 
         # Mouse click listener
         if pygame.mouse.get_pressed()[0]:
