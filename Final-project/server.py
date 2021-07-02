@@ -48,9 +48,9 @@ if __name__ == '__main__':
             sock_cli, addr_cli = sock_server.accept()
 
             # baca username klien
-            username_cli, num_box = sock_cli.recv(65535).decode("utf-8").split('|')
+            username_cli = sock_cli.recv(65535).decode("utf-8")
             print(username_cli, " joined")
-
+            num_box = 7
             # buat thread baru untuk membaca pesan dan jalankan threadnya
             thread_cli = threading.Thread(target=read_msg, args=(sock_cli, addr_cli, username_cli))
             thread_cli.start()
@@ -73,11 +73,11 @@ if __name__ == '__main__':
             players[username_cli]['room_key'] = avail_room
             num_player = len(rooms[avail_room].getPlayer())
             print('num players: ', num_player)
-            sock_cli.send(bytes("7|1", "utf-8"))
+            sock_cli.send(bytes("{}|{}".format(num_box, num_player), "utf-8"))
     except:
-        sock_server.close()
         for p in players:
             players[p]['socket'].close()
+        sock_server.close()
         for t in threads:
             t.join()
         sys.exit(0)

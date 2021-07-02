@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
         # kirim username ke server
         username = sys.argv[1]
-        data = "{}|{}".format(username, 7)
+        data = "{}".format(username)
         sock_cli.send(bytes(data, "utf-8"))
 
 
@@ -45,7 +45,7 @@ if __name__ == '__main__':
         thread_cli.start()
 
         print(type(num_box), player_num)
-        game = GameClient(7, 1)
+        game = GameClient(int(num_box), int(player_num))
         while True:
             game.update()
             if not game.isRunning():
