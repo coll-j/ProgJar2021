@@ -19,9 +19,9 @@ def read_msg(sock_cli, addr_cli, username_cli):
             room = rooms[players[username_cli]['room_key']]
             if room.updateBoard(parsed_data):
                 new_board = pickle.dumps(room.getBoard())
+                room.turn = room.turn + 1
                 for player in room.getPlayer():
                     players[player]['socket'].send(new_board)
-            print("parsed: ", parsed_data)
         sock_cli.close()
         print("Connection closed", addr_cli)
     except:

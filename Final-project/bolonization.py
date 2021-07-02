@@ -8,10 +8,20 @@ class GameServer():
     def __init__(self, num_box):
         self.players = []
         self.num_box = num_box
+        self._turn = 1
 
         self.boardh = [[0 for x in range(self.num_box)] for y in range(self.num_box + 1)]
         self.boardv = [[0 for x in range(self.num_box + 1)] for y in range(self.num_box)]
         pass
+
+    @property
+    def turn(self):
+        return self._turn
+
+    @turn.setter
+    def turn(self, turn):
+        self._turn = turn % (len(self.getPlayer()) + 1)
+        self._turn = 1 if self._turn == 0 else self._turn
 
     def removePlayer(self, username):
         self.players.remove(username)
