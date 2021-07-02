@@ -1,4 +1,5 @@
 This code tested on Python 3.9.5
+I suggest to use virtual environment to prevent overlapping libraries.
 
 ## How to run
 1. Install requirements by running `pip install -r requirements.txt`
