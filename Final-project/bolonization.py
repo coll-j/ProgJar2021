@@ -66,7 +66,6 @@ class GameServer():
                     self.boardv[ypos-1][xpos] == player_num and \
                     self.boardv[ypos-1][xpos+1] == player_num:
                 self.player_scores[player_num-1] += 1
-                print("colonized ", self.player_scores)
 
             #Check lower part
             if (xpos < self.num_box) and (ypos < self.num_box) and \
@@ -74,7 +73,6 @@ class GameServer():
                     self.boardv[ypos][xpos] == player_num and \
                     self.boardv[ypos][xpos+1] == player_num:
                 self.player_scores[player_num-1] += 1
-                print("colonized ", self.player_scores)
 
         elif not is_horizontal and self.boardv[ypos][xpos] == 0:
             moved = True
@@ -87,7 +85,6 @@ class GameServer():
                     self.boardh[ypos][xpos-1] == player_num and \
                     self.boardh[ypos + 1][xpos - 1] == player_num:
                 self.player_scores[player_num - 1] += 1
-                print("colonized")
 
             # Check right part
             if (xpos < self.num_box) and (ypos < self.num_box) and \
@@ -95,7 +92,6 @@ class GameServer():
                     self.boardh[ypos][xpos] == player_num and \
                     self.boardh[ypos+1][xpos] == player_num:
                 self.player_scores[player_num - 1] += 1
-                print("colonized")
 
         return moved
 
@@ -117,7 +113,7 @@ class GameClient():
         self.moveDict = {}
 
         width = 42 + (self.num_box * self.innerSize) + (self.num_box * self.boxWidth) + 80
-        height = width + 50
+        height = width - 30
 
         self.screen = pygame.display.set_mode((width, height))
         pygame.display.set_caption("Bolonization")
@@ -245,6 +241,17 @@ class GameClient():
             pygame.draw.rect(self.screen, self.colorWheel[i], (x, y, 30, 10))
             score_text = self.font.render("{}".format(self._scores[i-1]), 1, (255, 255, 255))
             self.screen.blit(score_text, (x+50, y))
+
+        x = 22
+        y = 30 + ((self.num_box+1) * self.boxWidth) + ((self.num_box) * self.innerSize)
+        text1 = self.font.render("Your color: ", 1, (255, 255, 255))
+        self.screen.blit(text1, (x, y))
+        pygame.draw.rect(self.screen, self.colorWheel[self.player_num], (x+100, y, 30, 10))
+
+
+        text1 = self.font.render("Current turn: ", 1, (255, 255, 255))
+        self.screen.blit(text1, (x, y+20))
+        pygame.draw.rect(self.screen, self.colorWheel[self._turn], (x+100, y+20, 30, 10))
 
         # Mouse click listener
         if pygame.mouse.get_pressed()[0]:

@@ -48,11 +48,6 @@ if __name__ == '__main__':
         data = "{}".format(username)
         sock_cli.send(bytes(data, "utf-8"))
 
-
-        # response = sock_cli.recv(655535).decode("utf-8")
-        # num_box, player_num = response.split("|")
-
-
         data = {}
         room = input('Ketik nama room untuk bergabung atau ketik "new" untuk membuat room baru: ')
         if room == 'new':

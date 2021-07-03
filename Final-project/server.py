@@ -91,7 +91,7 @@ if __name__ == '__main__':
             # baca username klien
             username_cli = sock_cli.recv(65535).decode("utf-8")
             print(username_cli, " joined")
-            num_box = 7
+
             # buat thread baru untuk membaca pesan dan jalankan threadnya
             thread_cli = threading.Thread(target=read_msg, args=(sock_cli, addr_cli, username_cli))
             thread_cli.start()
@@ -100,23 +100,6 @@ if __name__ == '__main__':
             # testing
             players[username_cli] = {'socket': sock_cli, 'address': addr_cli, 'thread': thread_cli}
 
-            # if len(rooms) == 0:
-                # Create room
-                # print("room created")
-                # avail_room = username_cli
-                # rooms[username_cli] = GameServer(int(num_box))
-            # else:
-                # Join room
-                # avail_room = list(rooms.keys())[0]
-                # print("{} joining room {}".format(username_cli, avail_room))
-
-            # rooms[avail_room].addPlayer(username_cli)
-            # players[username_cli]['room_key'] = avail_room
-            # scores = rooms[avail_room].getScores()
-            #
-            # sock_cli.send(bytes("{}|{}".format(num_box, 1), "utf-8"))
-
-            #     print("sent data to {}".format(player))
     except:
         for p in players:
             players[p]['socket'].close()
