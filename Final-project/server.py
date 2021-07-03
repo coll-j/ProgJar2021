@@ -16,12 +16,29 @@ def read_msg(sock_cli, addr_cli, username_cli):
 
             # parsing pesannya
             parsed_data = pickle.loads(data)
+            if "room" in parsed_data:
+                if parsed_data["room"] == "new":
+                    room = username_cli
+                    rooms[room] = GameServer(parsed_data['num_box'])
+                else:
+                    room = parsed_data["room"]
+
+                if room in rooms:
+                    rooms[room].addPlayer(username_cli)
+                    data = {}
+                    data['num_box'] = rooms[room].num_box
+                    data['player_num'] = len(rooms[room].getScores())
+                    players[username_cli]['room_key'] = room
+                    sock_cli.send(pickle.dumps(data))
+
+                continue
+
             if "ready" in parsed_data:
                 room = players[username_cli]['room_key']
                 scores = rooms[room].getScores()
                 data = {'scores': scores}
 
-                for player in rooms[avail_room].getPlayer():
+                for player in rooms[room].getPlayer():
                     players[player]['socket'].send(pickle.dumps(data))
 
                 continue
@@ -83,21 +100,21 @@ if __name__ == '__main__':
             # testing
             players[username_cli] = {'socket': sock_cli, 'address': addr_cli, 'thread': thread_cli}
 
-            if len(rooms) == 0:
+            # if len(rooms) == 0:
                 # Create room
-                print("room created")
-                avail_room = username_cli
-                rooms[username_cli] = GameServer(int(num_box))
-            else:
+                # print("room created")
+                # avail_room = username_cli
+                # rooms[username_cli] = GameServer(int(num_box))
+            # else:
                 # Join room
-                avail_room = list(rooms.keys())[0]
-                print("{} joining room {}".format(username_cli, avail_room))
+                # avail_room = list(rooms.keys())[0]
+                # print("{} joining room {}".format(username_cli, avail_room))
 
-            rooms[avail_room].addPlayer(username_cli)
-            players[username_cli]['room_key'] = avail_room
-            scores = rooms[avail_room].getScores()
-
-            sock_cli.send(bytes("{}|{}".format(num_box, len(scores)), "utf-8"))
+            # rooms[avail_room].addPlayer(username_cli)
+            # players[username_cli]['room_key'] = avail_room
+            # scores = rooms[avail_room].getScores()
+            #
+            # sock_cli.send(bytes("{}|{}".format(num_box, 1), "utf-8"))
 
             #     print("sent data to {}".format(player))
     except:

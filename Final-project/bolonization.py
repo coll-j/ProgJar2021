@@ -8,7 +8,7 @@ class GameServer():
     def __init__(self, num_box):
         self.players = []
         self.player_scores = []
-        self.num_box = num_box
+        self._num_box = num_box
         self._turn = 1
 
         self.boardh = [[0 for x in range(self.num_box)] for y in range(self.num_box + 1)]
@@ -23,6 +23,14 @@ class GameServer():
     def turn(self, turn):
         self._turn = turn % (len(self.getPlayer()) + 1)
         self._turn = 1 if self._turn == 0 else self._turn
+
+    @property
+    def num_box(self):
+        return self._num_box
+
+    @num_box.setter
+    def num_box(self, num):
+        self._num_box = num
 
     def removePlayer(self, username):
         idx = self.players.index(username)
@@ -94,7 +102,7 @@ class GameServer():
 class GameClient():
     def __init__(self, num_box, player_num):
         pygame.init()
-        print("creating game...")
+        print("creating game with num box {} and player {}".format(num_box, player_num))
         self.is_running = True
         self._turn = 1
         self.moved = False

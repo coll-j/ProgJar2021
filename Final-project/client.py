@@ -8,6 +8,9 @@ import os
 
 from bolonization import GameClient
 
+global game
+game = None
+
 def read_msg(sock_cli):
     try:
         while True:
@@ -17,6 +20,7 @@ def read_msg(sock_cli):
                 break
 
             parsed_data = pickle.loads(data)
+
             if 'scores' in parsed_data:
                 if game is not None:
                     game.scores = parsed_data['scores']
@@ -26,7 +30,7 @@ def read_msg(sock_cli):
     except:
         pass
 
-game = None
+
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print('Expected Username as command line argument')
@@ -45,20 +49,33 @@ if __name__ == '__main__':
         sock_cli.send(bytes(data, "utf-8"))
 
 
-        response = sock_cli.recv(655535).decode("utf-8")
-        num_box, player_num = response.split("|")
+        # response = sock_cli.recv(655535).decode("utf-8")
+        # num_box, player_num = response.split("|")
+
+
+        data = {}
+        room = input('Ketik nama room untuk bergabung atau ketik "new" untuk membuat room baru: ')
+        if room == 'new':
+            data['room'] = room
+            num_box = int(input("Masukkan jumlah kotak: "))
+            data['num_box'] = num_box
+        else:
+            data['room'] = room
+
+        sock_cli.send(pickle.dumps(data))
+        data = sock_cli.recv(65535)
+        parsed_data = pickle.loads(data)
+
+        game = GameClient(parsed_data['num_box'], parsed_data['player_num'])
+        data = {"ready": True}
+        sock_cli.send(pickle.dumps(data))
 
         # buat thread utk membaca pesan dan jalankan threadnya
         thread_cli = threading.Thread(target=read_msg, args=(sock_cli,))
         thread_cli.start()
-
-        game = GameClient(int(num_box), int(player_num))
-        data = {"ready": True}
-        sock_cli.send(pickle.dumps(data))
         while True:
             game.update()
             if not game.isRunning():
-                # sock_cli.send(bytes("stopped", "utf-8"))
                 exit()
                 break
 
