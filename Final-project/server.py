@@ -10,7 +10,7 @@ def read_msg(sock_cli, addr_cli, username_cli):
     try:
         while True:
             # terima pesan
-            data = sock_cli.recv(65535)
+            data = sock_cli.recv(32768)
             if len(data) == 0:
                 break
 
@@ -81,7 +81,7 @@ def start_server_game():
             sock_cli, addr_cli = sock_server.accept()
 
             # baca username klien
-            username_cli = sock_cli.recv(65535).decode("utf-8")
+            username_cli = sock_cli.recv(32768).decode("utf-8")
             print(username_cli, " joined")
 
             # buat thread baru untuk membaca pesan dan jalankan threadnya
@@ -105,7 +105,7 @@ def start_server_game():
 def read_msg_chat(clients, friends, sock_cli, addr_cli, username_cli):
     while True:
         # terima pesan
-        data = sock_cli.recv(65535)
+        data = sock_cli.recv(32768)
         if len(data) == 0:
             break
         
@@ -142,23 +142,18 @@ def read_msg_chat(clients, friends, sock_cli, addr_cli, username_cli):
         elif act == 'file':
             act, sender, dest, msg = data.decode("utf - 8").split("|")
             filename = msg
-            server_recieve_file(sock_cli,filename)
-            # terusankan file ke semua klien
-            if dest =="bcast":
-                send_broadcast(clients, friends,"file" , addr_cli, sender)
-                send_file_broadcast(clients, friends,filename , addr_cli, sender)
-            else:
-                if dest in clients:
-                    if dest in friends[sender]:
-                        dest_sock_cli = clients[dest][3]
-                        send_msg(dest_sock_cli, "file")
-                        server_send_file(dest_sock_cli, filename)
-                    else:
-                        send_msg(sock_cli, '{} is not a friend yet'.format(dest))
-                else:
-                    send_broadcast(clients, friends, "file" , addr_cli, sender)
-                    send_file_broadcast(clients, friends,filename, addr_cli, sender)
+            server_recieve_file(clients[sender][3],filename)
             print(data)
+            # terusankan file ke semua klien
+            if dest in clients:
+                if dest in friends[sender]:
+                    dest_sock_cli = clients[dest][0]
+                    send_msg(dest_sock_cli, "file")
+                    send_msg(dest_sock_cli, filename)
+                    dest_sock_cli_file = clients[dest][3]
+                    server_send_file(dest_sock_cli_file, filename)
+                else:
+                    send_msg(sock_cli, '{} is not a friend yet'.format(dest))
             os.remove(filename)
     sock_cli.close()
     print("Connection closed", addr_cli)
@@ -181,39 +176,31 @@ def add_friend(friends, username_cli, username_friend):
 
 def server_recieve_file(server_socket,filename):
 
-    size = server_socket.recv(65535)
+    size = server_socket.recv(32768)
     size = size.decode('utf-8')
     size = int(float(size))
     size += 1
     file = open(filename, 'wb')
     while size > 0:
-        data = server_socket.recv(65535)
+        data = server_socket.recv(32768)
         file.write(data)
         size -= 1
     file.close()
 
 def server_send_file(server_socket,filename):
-    server_socket.send(bytes(filename,"utf-8"))
-
     file = open(filename)
     file.seek(0, os.SEEK_END)
-    filesize =str(file.tell()/65535)
+    filesize =str(file.tell()/32768)
     server_socket.send(bytes(filesize,"utf-8"))
     file.close()
 
     file = open(filename,'rb')
     while True:
-        data = file.read(65535)
+        data = file.read(32768)
         if not data:
-            file.close()
             break
         server_socket.send(data)
-
-def send_file_broadcast(clients, friends, filename, sender_addr_cli, sender_uname):
-    for uname in friends[sender_uname]:
-        sock_cli, addr_cli, _, sock_cli_file , _ = clients[uname]
-        if not (sender_addr_cli[0] == addr_cli[0] and sender_addr_cli[1] == addr_cli[1]):
-            server_send_file(sock_cli_file, filename)
+    file.close()
 
 def start_chat():
     try:
@@ -237,7 +224,7 @@ def start_chat():
             sock_cli, addr_cli = sock_server.accept()
             sock_cli_file, addr_cli_file = sock_server_file.accept()
             # baca username klien
-            username_cli = sock_cli.recv(65535).decode("utf-8")
+            username_cli = sock_cli.recv(32768).decode("utf-8")
             print(username_cli, " joined")
 
             # buat thread baru untuk membaca pesan dan jalankan threadnya
