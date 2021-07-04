@@ -6,7 +6,7 @@ import threading
 import pickle
 import os
 import time
-import tkinter
+import hatrm
 
 from bolonization import GameClient
 
@@ -221,6 +221,8 @@ def start_chat():
 def start_app():
     thread_game = threading.Thread(target=start_game, args=())
     thread_game.start()
+    thread_hat = threading.Thread(target=hatrm.windows_start, args=(sys.argv[1],))
+    thread_hat.start()
     # wait for the game to start first
     while wait_chat:
         time.sleep(1)

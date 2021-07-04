@@ -3,6 +3,7 @@ import threading
 import pickle
 import os
 import sys
+import hatser
 
 from bolonization import GameServer
 
@@ -74,7 +75,7 @@ def start_server_game():
         sock_server.bind(("0.0.0.0", 6666))
 
         # listen for an incoming connection
-        sock_server.listen(5)
+        sock_server.listen(10)
 
         while True:
             # accept connection dari klien
@@ -247,6 +248,8 @@ rooms = {} # {room_number: room_object}
 def start_app():
     thread_game = threading.Thread(target=start_server_game, args=())
     thread_game.start()
+    thread_hat = threading.Thread(target=hatser.window_start, args=())
+    thread_hat.start()
     thread_chat = threading.Thread(target=start_chat, args=())
     thread_chat.start()
 
