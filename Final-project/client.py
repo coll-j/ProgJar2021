@@ -5,11 +5,14 @@ import sys
 import threading
 import pickle
 import os
+import time
 
 from bolonization import GameClient
 
 global game
 game = None
+global wait_chat
+wait_chat  = True
 
 def read_msg(sock_cli):
     try:
@@ -30,12 +33,7 @@ def read_msg(sock_cli):
     except:
         pass
 
-
-if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print('Expected Username as command line argument')
-        exit()
-
+def start_game():
     try:
         # buat object socket
         sock_cli = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -68,12 +66,15 @@ if __name__ == '__main__':
         # buat thread utk membaca pesan dan jalankan threadnya
         thread_cli = threading.Thread(target=read_msg, args=(sock_cli,))
         thread_cli.start()
+        # so the chat can start
+        global wait_chat
+        wait_chat = False
+
         while True:
             game.update()
             if not game.isRunning():
                 exit()
                 break
-
             if game.hasMoved():
                 data = game.getMove()
                 sock_cli.send(data)
@@ -87,4 +88,25 @@ if __name__ == '__main__':
         sys.exit(-1)
 
     sys.exit(0)
+
+def start_chat():
+    print(5)
+    
+def start_app():
+    thread_game = threading.Thread(target=start_game, args=())
+    thread_game.start()
+    # wait for the game to start first
+    while wait_chat:
+        time.sleep(1)
+    print(wait_chat)
+    start_chat()
+    # thread_chat = threading.Thread(target=start_chat, args=())
+    # thread_chat.start()
+
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print('Expected Username as command line argument')
+        exit()
+    start_app()
+    
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

@@ -64,17 +64,9 @@ def read_msg(sock_cli, addr_cli, username_cli):
         if len(rooms[room].getPlayer()) < 1:
             del rooms[room]
 
-
-# buat dictionary utk menyimpan informasi ttg klien
-players = {} # {'username': (sock_cli, addr_cli, thread_cli)}
-rooms = {} # {room_number: room_object}
-
-if __name__ == '__main__':
-    threads = []
+def start_server_game():
     try:
-        # buat object socket server
-        sock_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+        threads = []
         # buat object socket server
         sock_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -107,3 +99,18 @@ if __name__ == '__main__':
         for t in threads:
             t.join()
         sys.exit(0)
+# buat dictionary utk menyimpan informasi ttg klien
+players = {} # {'username': (sock_cli, addr_cli, thread_cli)}
+rooms = {} # {room_number: room_object}
+
+def start_chat():
+    print(5)
+    
+def start_app():
+    thread_game = threading.Thread(target=start_server_game, args=())
+    thread_game.start()
+    thread_chat = threading.Thread(target=start_chat, args=())
+    thread_chat.start()
+
+if __name__ == '__main__':
+    start_app()
