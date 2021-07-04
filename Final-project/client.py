@@ -91,7 +91,7 @@ def start_game():
 
 #----------------------------------------
 
-def read_msg_chat(sock_cli):
+def read_msg_chat(sock_cli, sock_cli_file):
     while True:
         # terima pesan
         data = sock_cli.recv(65535)
@@ -108,7 +108,8 @@ def read_msg_chat(sock_cli):
             data = sock_cli.recv(65535)
             msg = data.decode('utf-8')
             print("file recieve :" + msg)
-            client_recieve_file(sock_cli,msg)
+            print("Pilih aksi [1: kirim pesan, 2: kirim file, 3: lihat daftar pengguna, 4: tambah teman, 5: exit]:")
+            client_recieve_file(sock_cli_file, msg)
         else:
             clear_line()
             print(msg)
@@ -152,15 +153,16 @@ def start_chat():
         # buat object socket
         sock_cli = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+        sock_cli_file = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # connect ke server
         sock_cli.connect(("127.0.0.1", 6667))
+        sock_cli_file.connect(("127.0.0.1", 6668))
 
         # kirim username ke server
         username = sys.argv[1]
         # data = "{}".format(username)
         sock_cli.send(bytes(username, "utf-8"))
-
-        thread_cli = threading.Thread(target=read_msg_chat, args=(sock_cli,))
+        thread_cli = threading.Thread(target=read_msg_chat, args=(sock_cli,sock_cli_file))
         thread_cli.start()
 
         while True:
@@ -207,9 +209,12 @@ def start_chat():
             if act == 5:
                 # sock_cli.send(bytes('exit', 'utf-8'))
                 sock_cli.close()
+                sock_cli_file.close()
                 break
     except:
-        pass
+        sock_cli.close()
+        sock_cli_file.close()
+        sys.exit(-1)
     
 def start_app():
     thread_game = threading.Thread(target=start_game, args=())
@@ -218,8 +223,6 @@ def start_app():
     while wait_chat:
         time.sleep(1)
     start_chat()
-    # thread_chat = threading.Thread(target=start_chat, args=())
-    # thread_chat.start()
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

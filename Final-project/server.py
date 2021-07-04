@@ -150,7 +150,7 @@ def read_msg_chat(clients, friends, sock_cli, addr_cli, username_cli):
             else:
                 if dest in clients:
                     if dest in friends[sender]:
-                        dest_sock_cli = clients[dest][0]
+                        dest_sock_cli = clients[dest][3]
                         send_msg(dest_sock_cli, "file")
                         server_send_file(dest_sock_cli, filename)
                     else:
@@ -166,7 +166,7 @@ def read_msg_chat(clients, friends, sock_cli, addr_cli, username_cli):
 # kirim ke semua klien
 def send_broadcast(clients, friends, data, sender_addr_cli, sender_uname):
     for uname in friends[sender_uname]:
-        sock_cli, addr_cli, _ = clients[uname]
+        sock_cli, addr_cli, _, _, _ = clients[uname]
         if not (sender_addr_cli[0] == addr_cli[0] and sender_addr_cli[1] == addr_cli[1]):
             send_msg(sock_cli, data)
 
@@ -211,24 +211,23 @@ def server_send_file(server_socket,filename):
 
 def send_file_broadcast(clients, friends, filename, sender_addr_cli, sender_uname):
     for uname in friends[sender_uname]:
-        sock_cli, addr_cli, _ = clients[uname]
+        sock_cli, addr_cli, _, sock_cli_file , _ = clients[uname]
         if not (sender_addr_cli[0] == addr_cli[0] and sender_addr_cli[1] == addr_cli[1]):
-            server_send_file(sock_cli, filename)
+            server_send_file(sock_cli_file, filename)
 
 def start_chat():
     try:
         # buat object socket server
         sock_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        # buat object socket server
-        sock_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock_server_file = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # binding object socket ke alamat IP dan port tertentu
         sock_server.bind(("0.0.0.0", 6667))
+        sock_server_file.bind(("0.0.0.0", 6668))
 
         # listen for an incoming connection
-        sock_server.listen(5)
-
+        sock_server.listen(10)
+        sock_server_file.listen(10)
         # buat dictionary utk menyimpan informasi ttg klien
         clients = {}
         friends = {}
@@ -236,7 +235,7 @@ def start_chat():
         while True:
             # accept connection dari klien
             sock_cli, addr_cli = sock_server.accept()
-
+            sock_cli_file, addr_cli_file = sock_server_file.accept()
             # baca username klien
             username_cli = sock_cli.recv(65535).decode("utf-8")
             print(username_cli, " joined")
@@ -246,7 +245,7 @@ def start_chat():
             thread_cli.start()
 
             # simpan informasi ttg klien ke dictionary
-            clients[username_cli] = (sock_cli, addr_cli, thread_cli)
+            clients[username_cli] = (sock_cli, addr_cli, thread_cli, sock_cli_file, addr_cli_file)
             friends[username_cli] = []
     except:
         pass
