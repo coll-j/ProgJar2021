@@ -9,19 +9,62 @@ clients=[]
 def recv_msg(sock_ser):
     while True:
         msg = sock_ser.recv(32768)
-        send_to_all_msg(msg, sock_ser)
+        if msg.decode('utf-8') == "msg":
+            send_to_all_msg(msg, sock_ser)
+        if msg.decode('utf-8') == "img":
+            send_to_all_img(msg, sock_ser)
+
+def server_recieve_file(server_socket,filename):
+
+    size = server_socket.recv(32768)
+    size = size.decode('utf-8')
+    size = int(float(size))
+    size += 1
+    file = open(filename, 'wb')
+    while size > 0:
+        data = server_socket.recv(32768)
+        file.write(data)
+        size -= 1
+    file.close()
+
+def server_send_file(server_socket,filename):
+    file = open(filename)
+    file.seek(0, os.SEEK_END)
+    filesize =str(file.tell()/32768)
+    server_socket.send(bytes(filesize,"utf-8"))
+    file.close()
+
+    file = open(filename,'rb')
+    while True:
+        data = file.read(32768)
+        if not data:
+            break
+        server_socket.send(data)
+    file.close()
 
 def send_to_all_msg(msg,con):
     for client in clients:
         client.send(msg)
-        # client.send(bytes(msg, "utf-8"))
-        # client.send(msg.encode('ascii'))
+
+    msg = con.recv(32768)
+    for client in clients:
+        client.send(msg)
          
 def send_to_all_img(msg,con):
     for client in clients:
         client.send(msg)
-        # client.send(bytes(msg, "utf-8"))
-        # client.send(msg.encode('ascii')) 
+        
+    msg = con.recv(32768)
+    for client in clients:
+        client.send(msg)
+
+    server_recieve_file(con, msg.decode('utf-8'))
+    for client in clients:
+        server_send_file(client, msg.decode('utf-8'))
+        
+    # for client in clients:
+    #     client.send(msg)
+
 
 def window_start():
     try:
